@@ -4,13 +4,14 @@ import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server';
 const isPublicRoute = createRouteMatcher([
     '/',
     '/photos/(.*)',
+    '/api/uploadthing',
 ]);
 
-export default clerkMiddleware((auth, req) => {
+export default clerkMiddleware(async (auth, req) => {
     if (isPublicRoute(req)) {
         return; // Allow public routes to be accessed
     }
-    auth().protect(); // Protect all other routes
+    await auth.protect(); // Protect all other routes
 });
 
 export const config = {

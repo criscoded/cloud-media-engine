@@ -22,7 +22,7 @@ export const ourFileRouter = {
         // Set permissions and file types for this FileRoute
         .middleware(async () => {
             // This code runs on your server before upload
-            const user = auth();
+            const user = await auth();
 
             // If you throw, the user will not be able to upload
             if (!user.userId) throw new UploadThingError("Unauthorized");
@@ -31,17 +31,29 @@ export const ourFileRouter = {
             return { userId: user.userId };
         })
         .onUploadComplete(async ({ metadata, file }) => {
-            // This code RUNS ON YOUR SERVER after upload
-            console.log("Upload complete for userId:", metadata.userId);
+            console.log("SERVER: onUploadComplete started", { userId: metadata.userId, fileName: file.name });
 
-            await db.insert(images).values({
-                name: file.name,
-                url: file.url,
-                userId: metadata.userId,
-            });
-
-            // !!! Whatever is returned here is sent to the clientside `onClientUploadComplete` callback
-            return { uploadedBy: metadata.userId };
+            try {
+                // Ensure the database operation is awaited and doesn't timeout
+                const dbResult = await db.insert(images).values({
+                    name: file.name,
+                    url: file.url,
+                    userId: metadata.userId,
+                    isPublic: false,
+                }).returning();
+                
+                console.log("SERVER: Database insertion success", dbResult);
+                
+                return { 
+                    uploadedBy: metadata.userId, 
+                    fileName: file.name,
+                    status: "ok" 
+                };
+            } catch (err) {
+                console.error("SERVER: Database insertion CRASHED", err);
+                // Return a failure object instead of throwing to see if it reaches the client
+                return { error: "Database failure", details: String(err) };
+            }
         }),
 } satisfies FileRouter;
 

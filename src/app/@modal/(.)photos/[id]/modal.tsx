@@ -25,15 +25,28 @@ export function Modal({ children }: { children: React.ReactNode }) {
             className="
                 fixed inset-0
                 m-0 border-0
-                pt-36 pl-2
+                p-4
                 overflow-hidden
                 bg-transparent
-                text-white
-                backdrop:bg-zinc-900/50
+                backdrop:bg-background/80
+                backdrop:backdrop-blur-sm
+                w-full h-full
+                flex items-center justify-center
             "
         >
-            {children}
-        </dialog>,
+            <div className="w-full max-w-6xl max-h-[90vh] overflow-hidden rounded-[2rem] shadow-2xl animate-modal-zoom">
+                {children}
+            </div>
+            <button 
+                onClick={onDismiss}
+                className="absolute top-10 right-10 text-foreground/50 hover:text-foreground transition-colors p-2"
+            >
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-8 h-8">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </dialog>
+,
         document.getElementById('modal-root')!,
     );
 }

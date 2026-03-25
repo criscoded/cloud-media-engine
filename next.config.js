@@ -34,7 +34,7 @@ const config = withSentryConfig(coreConfig, {
   project: "cloud-media-engine",
 
   // Only print logs for uploading source maps in CI
-  silent: !process.env.CI,
+  silent: true,
 
   // Upload a larger set of source maps for prettier stack traces
   widenClientFileUpload: true,
@@ -47,6 +47,9 @@ const config = withSentryConfig(coreConfig, {
 
   // Enable automatic instrumentation of Vercel Cron Monitors
   automaticVercelMonitors: true,
+
+  // Hides source maps from the browser while still uploading them to Sentry
+  hideSourceMaps: true,
 });
 
 export default config;

@@ -6,23 +6,17 @@ import { desc, eq } from "drizzle-orm";
 
 export async function getDefaultImages() {
   console.log("QUERIES: Fetching default images");
-  const result = await db
-    .select()
+
+  return db
+    .select({
+      id: images.id,
+      name: images.name,
+      url: images.url,
+      userId: images.userId,
+    })
     .from(images)
     .where(eq(images.isPublic, true))
     .orderBy(desc(images.id));
-
-  // Force to a plain object array using JSON serialization
-  return JSON.parse(
-    JSON.stringify(
-      result.map((img) => ({
-        id: img.id,
-        name: img.name,
-        url: img.url,
-        userId: img.userId,
-      })),
-    ),
-  );
 }
 
 export async function getUserImages() {
@@ -32,24 +26,19 @@ export async function getUserImages() {
   if (!user.userId) throw new Error("Unauthorized");
 
   const result = await db
-    .select()
+    .select({
+      id: images.id,
+      name: images.name,
+      url: images.url,
+      userId: images.userId,
+    })
     .from(images)
     .where(eq(images.userId, user.userId))
     .orderBy(desc(images.id));
 
   console.log("QUERIES: Found", result.length, "images");
 
-  // Force to a plain object array using JSON serialization
-  return JSON.parse(
-    JSON.stringify(
-      result.map((img) => ({
-        id: img.id,
-        name: img.name,
-        url: img.url,
-        userId: img.userId,
-      })),
-    ),
-  );
+  return result;
 }
 
 export async function getImageById(id: number) {
@@ -65,29 +54,15 @@ export async function getImageById(id: number) {
 
   if (!image) throw new Error("Image not found");
 
-  if (image.isPublic) {
-    return JSON.parse(
-      JSON.stringify({
-        id: image.id,
-        name: image.name,
-        url: image.url,
-        userId: image.userId,
-        createdAt: image.createdAt.toISOString(),
-      }),
-    );
-  }
-
-  if (!user.userId || image.userId !== user.userId) {
+  if (!image.isPublic && (!user.userId || image.userId !== user.userId)) {
     throw new Error("Unauthorized");
   }
 
-  return JSON.parse(
-    JSON.stringify({
-      id: image.id,
-      name: image.name,
-      url: image.url,
-      userId: image.userId,
-      createdAt: image.createdAt.toISOString(),
-    }),
-  );
+  return {
+    id: image.id,
+    name: image.name,
+    url: image.url,
+    userId: image.userId,
+    createdAt: image.createdAt.toISOString(),
+  };
 }

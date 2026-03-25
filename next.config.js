@@ -48,8 +48,10 @@ const config = withSentryConfig(coreConfig, {
   // Enable automatic instrumentation of Vercel Cron Monitors
   automaticVercelMonitors: true,
 
-  // Hides source maps from the browser while still uploading them to Sentry
-  hideSourceMaps: true,
+  sourcemaps: {
+    // Hides source maps from the browser by deleting them after upload to Sentry
+    deleteSourcemapsAfterUpload: true,
+  },
 });
 
 export default config;
